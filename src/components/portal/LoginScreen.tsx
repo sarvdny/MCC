@@ -288,9 +288,10 @@ export const LoginScreen: React.FC = () => {
         }
       };
       window.addEventListener('keydown', handleKeyDown);
+      const activeTimers = timersRef.current;
       return () => {
         window.removeEventListener('keydown', handleKeyDown);
-        timersRef.current.forEach(clearTimeout);
+        activeTimers.forEach(clearTimeout);
       };
     }
   }, []);
