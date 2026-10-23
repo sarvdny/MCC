@@ -112,4 +112,32 @@ describe('Authenticated Session & /login Redirection Suite', () => {
       'LoginScreen must display session detected feedback to eliminate form flicker'
     );
   });
+
+  it('should verify Next.js middleware.ts protects application routes from unauthenticated visits', () => {
+    const middlewarePath = path.join(ROOT_DIR, 'src', 'middleware.ts');
+    const content = fs.readFileSync(middlewarePath, 'utf8');
+
+    assert.ok(
+      content.includes("NextResponse.redirect(new URL('/login', request.url))"),
+      "Middleware must redirect unauthenticated requests to '/login'"
+    );
+    assert.ok(
+      content.includes('isValidSession'),
+      'Middleware must validate session before granting access'
+    );
+  });
+
+  it('should verify DashboardLayout.tsx implements client-side FOUC elimination safeguards', () => {
+    const layoutPath = path.join(ROOT_DIR, 'src', 'components', 'layout', 'DashboardLayout.tsx');
+    const content = fs.readFileSync(layoutPath, 'utf8');
+
+    assert.ok(
+      content.includes('authInitialized && !isAuthenticated'),
+      'DashboardLayout must guard against rendering shell when unauthenticated'
+    );
+    assert.ok(
+      content.includes('hasAuthPresence'),
+      'DashboardLayout must implement fast-check for auth presence before mounting UI shell'
+    );
+  });
 });

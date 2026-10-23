@@ -88,6 +88,23 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
   const showProgressBar = !authInitialized || isLoadingData;
   const isVerifyingAuth = !authInitialized;
 
+  // Safeguard #1: If auth check resolved and user is not authenticated, avoid rendering shell during redirect
+  if (authInitialized && !isAuthenticated) {
+    return null;
+  }
+
+  // Safeguard #2: Fast client check to avoid unauthenticated flash when no session cookie exists
+  const hasAuthPresence =
+    typeof window !== 'undefined'
+      ? document.cookie.includes('maha_auth_token') ||
+        document.cookie.includes('maha_auth_user') ||
+        Boolean(localStorage.getItem('maha_auth_user'))
+      : true;
+
+  if (!authInitialized && !hasAuthPresence) {
+    return null;
+  }
+
   return (
     <div className="h-screen w-screen overflow-hidden flex flex-col bg-[#F8FAFC]">
       {/* 1. Top Command Header (Permanently Mounted — Never Hidden) */}
